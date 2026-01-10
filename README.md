@@ -2,106 +2,83 @@
 
 Projeto mínimo que expõe uma rota GET `/` retornando uma mensagem JSON.
 
+Resumo
+
+- Aplicação: FastAPI (em `app/main.py`) que retorna {"message": "Olá, mundo!"} na rota `/`.
+- Docker: `Dockerfile` multiestágio incluído.
+- Orquestração local: `docker-compose.yml` para executar o serviço rapidamente.
+- Infraestrutura: arquivos Terraform em `terraform/` (ALB, ECS, VPC etc.).
+
 Pré-requisitos
 
-- Python 3.8+
-- Docker (opcional, para containerização)
+- Docker (recomendado)
 - docker-compose (opcional)
+- Python 3.8+ (para execução local sem container)
+- Terraform (se for aplicar a infraestrutura)
 
-Instalação rápida (desenvolvimento local)
+Executar localmente (sem Docker)
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-Executar servidor localmente
-
-```bash
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Testes (local)
+Endpoint
 
-```bash
-pytest -q
-```
-
-Resposta esperada na rota `/`:
+GET / =>
 
 ```json
 { "message": "Olá, mundo!" }
 ```
 
----
+Executar com Docker (recomendado)
 
-Uso com Docker
-
-O projeto inclui um `Dockerfile` multiestágio e um `docker-compose.yml` para facilitar a execução em containers.
-
-Construir a imagem Docker:
+Construir a imagem:
 
 ```bash
 docker build -t mensagem_web:latest .
 ```
 
-Executar o container:
+Executar a imagem:
 
 ```bash
 docker run --rm -p 8000:8000 mensagem_web:latest
 ```
 
-Ou usando docker-compose (recomendado para desenvolvimento/integração rápida):
+Executar com docker-compose
 
 ```bash
-# Constrói a imagem e sobe o serviço
+# Constrói a imagem e sobe o serviço (interativo)
 docker compose up --build
 
-# Para rodar em background
+# Em background
 docker compose up --build -d
 
 # Parar e remover
+
 docker compose down
 ```
 
-Executar testes dentro do container
+Testes
+
+O repositório inclui testes simples em `tests/test_main.py`.
 
 ```bash
-# Executa pytest no serviço definido no docker-compose
-docker compose run --rm web pytest -q
+pytest -q
 ```
 
-Desenvolvimento com hot-reload (opção)
+Notas sobre Terraform
 
-O `docker-compose.yml` padrão monta o diretório do projeto como somente leitura por segurança. Para desenvolvimento com hot-reload, você tem duas opções rápidas:
+Existem configurações Terraform em `terraform/` para criar VPC, ALB, ECS e recursos relacionados. Antes de aplicar em uma conta AWS, revise `terraform/variables.tf` e `terraform/terraform.tfvars.example`.
 
-1) Ajustar `docker-compose.yml` trocando o volume para leitura/escrita e habilitar o reload no comando:
-
-```yaml
-# volumes:
-#   - ./:/app:rw
-# command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-2) Ou executar temporariamente o serviço com montagem de volume e `--reload`:
+Para validar a configuração localmente (sem backend remoto):
 
 ```bash
-docker compose run --service-ports --rm -v "$(pwd)":/app web \
-  uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+cd terraform
+terraform init -backend=false
+terraform validate
 ```
 
-Notas de produção
-
-- Para produção, considere usar um servidor de aplicação como Gunicorn com workers Uvicorn (`gunicorn -k uvicorn.workers.UvicornWorker`) e ajustar o número de workers conforme CPU/ram.
-- Evite usar `--reload` em ambiente de produção.
-
-Dicas / Troubleshooting
-
-- Se a porta 8000 estiver em uso, altere o mapeamento de portas (`-p 8001:8000`) ou configure outra porta no `uvicorn`.
-- Se instalar localmente, ative o virtualenv antes de instalar dependências para evitar conflitos com pacotes do sistema.
-- Permissões em volumes: em alguns sistemas, pode ser necessário ajustar permissões do diretório para que o processo Python no container consiga ler/editar arquivos quando o volume é montado como `rw`.
-
-Se quiser, eu posso:
-- Rodar `docker compose up --build` aqui para construir e subir o serviço e mostrar a saída, ou
-- Gerar um `docker-compose.override.yml` pronto para desenvolvimento com `:rw` e `--reload`.
+Se quiser que eu execute o Docker Compose para subir o serviço localmente ou rode a validação do Terraform aqui, diga qual opção prefere e eu executo e mostro a saída.
