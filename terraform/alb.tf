@@ -11,10 +11,12 @@ resource "aws_lb" "app" {
 }
 
 resource "aws_lb_target_group" "app" {
-  name     = "${var.project_name}-tg"
-  port     = var.container_port
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
+  name        = "${var.project_name}-tg"
+  port        = var.container_port
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip"
+
   health_check {
     path                = "/"
     interval            = 30

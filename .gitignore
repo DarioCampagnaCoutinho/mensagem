@@ -1,0 +1,53 @@
+# === Python ===
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.python-version
+.env
+.env.*
+
+# === Docker ===
+# If you have local compose overrides for development
+docker-compose.override.yml
+
+# === Terraform ===
+.terraform/
+# Terraform state files
+*.tfstate
+*.tfstate.*
+# Crash log
+crash.log
+# Override files (local customizations)
+override.tf
+override.tf.json
+*_override.tf
+# Sensitive variable files (do not commit secrets)
+*.tfvars
+*.tfvars.json
+# Local CLI configuration
+.terraformrc
+terraform.rc
+
+# Note: do NOT ignore .terraform.lock.hcl by default — it's recommended to commit the lockfile.
+
+# === IDEs / editors ===
+.vscode/
+.idea/
+*.iml
+
+# === Misc ===
+.DS_Store
+*.log
+
+# Keep docs artifacts out if generated locally
+/docs/*.pdf
+
+# Local test outputs
+htmlcov/
+coverage.xml
+
+
