@@ -12,9 +12,9 @@ resource "aws_ecs_service" "app" {
   }
 
   network_configuration {
-    subnets          = [for s in aws_subnet.private : s.id]
+    subnets          = [for s in aws_subnet.public : s.id]
     security_groups  = [aws_security_group.ecs_tasks.id]
-    assign_public_ip = false
+    assign_public_ip = true
   }
 
   depends_on = [aws_lb_listener.http]

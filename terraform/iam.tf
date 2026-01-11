@@ -45,3 +45,26 @@ resource "aws_iam_role_policy_attachment" "ecr_pull_attach" {
   policy_arn = aws_iam_policy.ecr_pull.arn
 }
 
+# Secrets Manager permissions
+resource "aws_iam_policy" "secrets_access" {
+  name = "${var.project_name}-secrets-access"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ],
+        Effect   = "Allow",
+        Resource = aws_secretsmanager_secret.app.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "secrets_attach" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.secrets_access.arn
+}
+
